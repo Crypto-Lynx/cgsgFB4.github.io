@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Mandelbrot</title>
+
+  <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+
+  <script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform float interaction_num;
+    uniform float Mx; 
+    uniform float My;
+
+    void main(void)
+    {
+        vec2 An1, An; 
+        vec2 A0 = vec2((gl_FragCoord.x - Mx) / 150.0, (gl_FragCoord.y + My -500.0) / 150.0);
+        int n, a = int(interaction_num);
+
+        An = A0;
+        
+        for (int i = 0; i < 1048576; i++)
+        {
+        if (i > a)
+          break;
+
+        An1.x = An.x * An.x - An.y * An.y + A0.x;
+        An1.y = 2.0 * An.x * An.y + A0.y;
+        An = An1;
+        
+        if (An.x * An.x + An.y * An.y >  4.0)
+          n = i;
+        
+        }
+        gl_FragColor = vec4(float(n) / 2.0, float(n) / 3.0, float(n) / 8.0, 1.0);
+        
+    }
+
+</script>
+
+  <script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    void main(void)
+    {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    }
+</script>
+
+  <script type="text/javascript">
+    var gl;
+    var interaction_num;
+    var GlbMCoordX;
+    var GlbMCoordY;
+    function initGL(canvas) {
+      try {
+        gl = canvas.getContext("experimental-webgl");
+        gl.viewportWidth = canvas.width;
+        gl.viewportHeight = canvas.height;
+      } catch (e) {
+      }
+      if (!gl) {
+        alert("Could not initialise WebGL");
+      }
+    }
+
+    function getShader(gl, id) {
+      var shaderScript = document.getElementById(id);
+      if (!shaderScript) {
+        return null;
+      }
+
+      var str = "";
+      var k = shaderScript.firstChild;
+      while (k) {
+        if (k.nodeType == 3) {
+          str += k.textContent;
+        }
+        k = k.nextSibling;
+      }
+
+      var shader;
+      if (shaderScript.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+      } else if (shaderScript.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+      } else {
+        return null;
+      }
+
+      gl.shaderSource(shader, str);
+      gl.compileShader(shader);
+
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(shader));
+        return null;
+      }
+
+      return shader;
+    }
+
+    var shaderProgram;
+
+    function initShaders() {
+      var fragmentShader = getShader(gl, "shader-fs");
+      var vertexShader = getShader(gl, "shader-vs");
+
+      shaderProgram = gl.createProgram();
+      gl.attachShader(shaderProgram, vertexShader);
+      gl.attachShader(shaderProgram, fragmentShader);
+      gl.linkProgram(shaderProgram);
+
+      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        alert("Could not initialise shaders");
+      }
+
+      gl.useProgram(shaderProgram);
+
+      shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+      gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+      shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+      shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+      shaderProgram.interactions_uniform = gl.getUniformLocation(shaderProgram, "interaction_num");
+      shaderProgram.Mx_uniform = gl.getUniformLocation(shaderProgram, "Mx");
+      shaderProgram.My_uniform = gl.getUniformLocation(shaderProgram, "My");
+    }
+
+
+    var mvMatrix = mat4.create();
+    var pMatrix = mat4.create();
+
+    function setMatrixUniforms() {
+      gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+      gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+      gl.uniform1f(shaderProgram.interactions_uniform, interaction_num);
+      gl.uniform1f(shaderProgram.Mx_uniform, GlbMCoordX);
+      gl.uniform1f(shaderProgram.My_uniform, GlbMCoordY);
+    }
+
+    var squareVertexPositionBuffer;
+
+    function initBuffers() {
+      squareVertexPositionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+      vertices = [
+        1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0,
+        1.0, -1.0, 0.0,
+        -1.0, -1.0, 0.0
+      ];
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+      squareVertexPositionBuffer.itemSize = 3;
+      squareVertexPositionBuffer.numItems = 4;
+    }
+
+
+    function drawScene() {
+      gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+
+      mat4.identity(mvMatrix);
+
+
+      mat4.translate(mvMatrix, [0.0, 0.0, -1.0]);
+      gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+      gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      setMatrixUniforms();
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+    }
+
+    function tick() {
+      window.requestAnimationFrame(tick);
+      drawScene();
+    }
+
+
+    function webGLStart() {
+      // default interection num
+      interaction_num = 32.0;
+      document.getElementById('input_interactions_num').value = interaction_num;
+
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.open('GET', '/0/data.txt', false);
+      xmlhttp.send(null);
+      if (xmlhttp.status == 200) {
+        alert(xmlhttp.responseText);
+      }
+
+      var canvas = document.getElementById("wegl-canvas");
+      initGL(canvas);
+      initShaders();
+      initBuffers();
+
+      gl.clearColor(0.3, 0.5, 0.8, 1.0);
+      gl.enable(gl.DEPTH_TEST);
+
+      drawScene();
+      tick();
+    }
+
+    function update_interactions_num() {
+      data = document.getElementById('input_interactions_num').value;
+      interaction_num = parseInt(data);
+      if (isNaN(interaction_num))
+        interaction_num = 32.0;
+      //alert(data);
+    }
+  </script>
+  <script>
+    function myFunction(e) {
+       GlbMCoordX = e.clientX;
+       GlbMCoordY = e.clientY;
+ 
+      var coor = "Coordinates: (" + GlbMCoordX + "," + GlbMCoordY + ")";
+      document.getElementById("demo").innerHTML = coor;
+    }
+    function clearCoor() {
+    document.getElementById("demo").innerHTML = "";
+    }
+  </script>
+
+</head>
+
+
+<body onload="webGLStart();">
+  <canvas id="wegl-canvas" style="border: none;" width="500" height="500" onmousemove="myFunction(event)" onmouseout="clearCoor()"></canvas>
+
+  <br />
+  <label for="input_interactions_num"> interactions</label> <input type="text" id="input_interactions_num"
+    onkeyup="update_interactions_num()"><br>
+    <p id="demo"></p>
+</body>
+
+</html>

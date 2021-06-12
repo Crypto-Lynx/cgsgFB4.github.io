@@ -16,7 +16,7 @@
     void main(void)
     {
         vec2 An1, An; 
-        vec2 A0 = vec2((gl_FragCoord.x - Mx) / 150.0, (gl_FragCoord.y + My -500.0) / 150.0);
+        vec2 A0 = vec2((gl_FragCoord.x - Mx) / 150.0, (gl_FragCoord.y + My - 500.0) / 150.0);
         int n, a = int(interaction_num);
 
         An = A0;
@@ -55,8 +55,11 @@
   <script type="text/javascript">
     var gl;
     var interaction_num;
-    var GlbMCoordX;
-    var GlbMCoordY;
+    var GlbMCoordX = 250.0;
+    var GlbMCoordY = 250.0;
+    var GlbMCoordXOld;
+    var GlbMCoordYOld;
+    var Mclick;
     function initGL(canvas) {
       try {
         gl = canvas.getContext("experimental-webgl");
@@ -216,14 +219,27 @@
   </script>
   <script>
     function myFunction(e) {
-       GlbMCoordX = e.clientX;
-       GlbMCoordY = e.clientY;
+       GlbMCoordXOld = e.clientX;
+       GlbMCoordYOld = e.clientY;
+           
  
-      var coor = "Coordinates: (" + GlbMCoordX + "," + GlbMCoordY + ")";
+       if (Mclick === 1)
+       {
+         GlbMCoordX += e.movementX;
+         GlbMCoordY += e.movementY;
+       }
+
+      var coor = "Coordinates: (" + GlbMCoordXOld + "," + GlbMCoordYOld + ")";
       document.getElementById("demo").innerHTML = coor;
     }
     function clearCoor() {
     document.getElementById("demo").innerHTML = "";
+    }
+    function IfClick() {
+    Mclick = 1.0;
+    }
+    function IfNotClick(){
+    Mclick = 0.0;  
     }
   </script>
 
@@ -231,7 +247,7 @@
 
 
 <body onload="webGLStart();">
-  <canvas id="wegl-canvas" style="border: none;" width="500" height="500" onmousemove="myFunction(event)" onmouseout="clearCoor()"></canvas>
+  <canvas id="wegl-canvas" style="border: none;" width="500" height="500"  onmousedown="IfClick()" onmousemove="myFunction(event)" onmouseout="clearCoor()" onmouseup="IfNotClick()"></canvas>
 
   <br />
   <label for="input_interactions_num"> interactions</label> <input type="text" id="input_interactions_num"

@@ -63,6 +63,7 @@
     var Mclick;
     var RollCoef = 0.0;
 
+
     function initGL(canvas) {
       try {
         gl = canvas.getContext("experimental-webgl");
@@ -217,37 +218,42 @@
     function update_interactions_num() {
       data = document.getElementById('input_interactions_num').value;
       interaction_num = parseInt(data);
+      var isnum = /^\d*$/.test(data);
+      if (!isnum) {
+        alert("!!!");
+      }
+
       if (isNaN(interaction_num))
         interaction_num = 32.0;
       //alert(data);
+
     }
   </script>
   <script>
     function myFunction(e) {
-       GlbMCoordXOld = e.clientX;
-       GlbMCoordYOld = e.clientY;
-           
-       if (Mclick === 1)
-       {
-         GlbMCoordX += e.movementX;
-         GlbMCoordY += e.movementY;
+      GlbMCoordXOld = e.clientX;
+      GlbMCoordYOld = e.clientY;
 
-       }
+      if (Mclick === 1) {
+        GlbMCoordX += e.movementX;
+        GlbMCoordY += e.movementY;
+
+      }
 
       var coor = "Coordinates: (" + GlbMCoordXOld + "," + GlbMCoordYOld + ")";
       document.getElementById("demo").innerHTML = coor;
     }
     function clearCoor() {
-    document.getElementById("demo").innerHTML = "";
+      document.getElementById("demo").innerHTML = "";
     }
     function IfClick() {
-    Mclick = 1.0;
+      Mclick = 1.0;
     }
-    function IfNotClick(){
-    Mclick = 0.0;  
+    function IfNotClick() {
+      Mclick = 0.0;
     }
-    function Roll(e){
-    RollCoef -= e.deltaY;
+    function Roll(e) {
+      RollCoef -= e.deltaY;
     }
   </script>
 
@@ -255,13 +261,14 @@
 
 
 <body onload="webGLStart();">
-  <canvas id="wegl-canvas" style="border: none;" width="500" height="500"  onmousedown="IfClick()" onmousemove="myFunction(event)" onmouseout="clearCoor()" 
-    onmouseup="IfNotClick()" onmousewheel="Roll(event)"></canvas>
+  <canvas id="wegl-canvas" style="border: none;" width="500" height="500" onmousedown="IfClick()"
+    onmousemove="myFunction(event)" onmouseout="clearCoor()" onmouseup="IfNotClick()"
+    onmousewheel="Roll(event)"></canvas>
 
   <br />
   <label for="input_interactions_num"> interactions</label> <input type="text" id="input_interactions_num"
     onkeyup="update_interactions_num()"><br>
-    <p id="demo"></p>
+  <p id="demo"></p>
 </body>
 
 </html>

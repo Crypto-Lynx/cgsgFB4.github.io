@@ -12,11 +12,12 @@
     uniform float interaction_num;
     uniform float Mx; 
     uniform float My;
+    uniform float Roll;
 
     void main(void)
     {
         vec2 An1, An; 
-        vec2 A0 = vec2((gl_FragCoord.x - Mx) / 150.0, (gl_FragCoord.y + My - 500.0) / 150.0);
+        vec2 A0 = vec2((gl_FragCoord.x - Mx) / (150.0 + Roll / 2.0), (gl_FragCoord.y + My - 500.0) / (150.0 + Roll / 2.0));
         int n, a = int(interaction_num);
 
         An = A0;
@@ -60,6 +61,8 @@
     var GlbMCoordXOld;
     var GlbMCoordYOld;
     var Mclick;
+    var RollCoef = 0.0;
+
     function initGL(canvas) {
       try {
         gl = canvas.getContext("experimental-webgl");
@@ -132,6 +135,7 @@
       shaderProgram.interactions_uniform = gl.getUniformLocation(shaderProgram, "interaction_num");
       shaderProgram.Mx_uniform = gl.getUniformLocation(shaderProgram, "Mx");
       shaderProgram.My_uniform = gl.getUniformLocation(shaderProgram, "My");
+      shaderProgram.Roll_uniform = gl.getUniformLocation(shaderProgram, "Roll")
     }
 
 
@@ -144,6 +148,7 @@
       gl.uniform1f(shaderProgram.interactions_uniform, interaction_num);
       gl.uniform1f(shaderProgram.Mx_uniform, GlbMCoordX);
       gl.uniform1f(shaderProgram.My_uniform, GlbMCoordY);
+      gl.uniform1f(shaderProgram.Roll_uniform, RollCoef)
     }
 
     var squareVertexPositionBuffer;
@@ -222,11 +227,11 @@
        GlbMCoordXOld = e.clientX;
        GlbMCoordYOld = e.clientY;
            
- 
        if (Mclick === 1)
        {
          GlbMCoordX += e.movementX;
          GlbMCoordY += e.movementY;
+
        }
 
       var coor = "Coordinates: (" + GlbMCoordXOld + "," + GlbMCoordYOld + ")";
@@ -241,13 +246,17 @@
     function IfNotClick(){
     Mclick = 0.0;  
     }
+    function Roll(e){
+    RollCoef -= e.deltaY;
+    }
   </script>
 
 </head>
 
 
 <body onload="webGLStart();">
-  <canvas id="wegl-canvas" style="border: none;" width="500" height="500"  onmousedown="IfClick()" onmousemove="myFunction(event)" onmouseout="clearCoor()" onmouseup="IfNotClick()"></canvas>
+  <canvas id="wegl-canvas" style="border: none;" width="500" height="500"  onmousedown="IfClick()" onmousemove="myFunction(event)" onmouseout="clearCoor()" 
+    onmouseup="IfNotClick()" onmousewheel="Roll(event)"></canvas>
 
   <br />
   <label for="input_interactions_num"> interactions</label> <input type="text" id="input_interactions_num"

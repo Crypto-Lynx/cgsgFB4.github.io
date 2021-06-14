@@ -16,8 +16,11 @@
 
     void main(void)
     {
-        vec2 An1, An; 
-        vec2 A0 = vec2((gl_FragCoord.x - Mx) / (150.0 + Roll / 2.0), (gl_FragCoord.y + My - 500.0) / (150.0 + Roll / 2.0));
+        vec2 An1, An;
+        float RCoef = abs(150.0 + Roll / 5.0);
+       
+        vec2 A0 = vec2((gl_FragCoord.x - Mx) / RCoef, (gl_FragCoord.y + My - 500.0) / RCoef);
+        
         int n, a = int(interaction_num);
 
         An = A0;
@@ -219,9 +222,8 @@
       data = document.getElementById('input_interactions_num').value;
       interaction_num = parseInt(data);
       var isnum = /^\d*$/.test(data);
-      if (!isnum) {
+      if (!isnum)
         document.getElementById('input_interactions_num').style.backgroundColor = "red";
-      }
       else
         document.getElementById('input_interactions_num').style.backgroundColor = "azure";
       if (isNaN(interaction_num))
@@ -239,9 +241,7 @@
       if (Mclick === 1) {
         GlbMCoordX += e.movementX;
         GlbMCoordY += e.movementY;
-
       }
-
       var coor = "Coordinates: (" + GlbMCoordXOld + "," + GlbMCoordYOld + ")";
       document.getElementById("demo").innerHTML = coor;
     }
@@ -257,6 +257,12 @@
     function Roll(e) {
       RollCoef -= e.deltaY;
     }
+
+    function SetDefaultCam() {
+      GlbMCoordX = 250.0;
+      GlbMCoordY = 250.0;
+      RollCoef = 0.0;
+    }
   </script>
 
 </head>
@@ -264,15 +270,15 @@
 
 <body onload="webGLStart();">
 
-  <canvas id="wegl-canvas" style="border: none;" width="500" height="500" onmousedown="IfClick()"
+  <canvas id="wegl-canvas" style="border: 3px solid #808000;" width="500" height="500" onmousedown="IfClick()"
     onmousemove="myFunction(event)" onmouseout="clearCoor()" onmouseup="IfNotClick()"
     onmousewheel="Roll(event)"></canvas>
 
   <br />
-  <label for="input_interactions_num"> interactions</label> <input type="text" id="input_interactions_num"
+  <label for="input_interactions_num"> Iteracions</label> <input type="text" id="input_interactions_num"
     onkeyup="update_interactions_num()"><br>
   <p id="demo"></p>
-
+  <button onclick="SetDefaultCam()">Set default camera</button>
 </body>
 
 </html>

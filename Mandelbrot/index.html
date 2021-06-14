@@ -220,15 +220,17 @@
       interaction_num = parseInt(data);
       var isnum = /^\d*$/.test(data);
       if (!isnum) {
-        alert("!!!");
+        document.getElementById('input_interactions_num').style.backgroundColor = "red";
       }
-
+      else
+        document.getElementById('input_interactions_num').style.backgroundColor = "azure";
       if (isNaN(interaction_num))
         interaction_num = 32.0;
       //alert(data);
-
     }
   </script>
+
+
   <script>
     function myFunction(e) {
       GlbMCoordXOld = e.clientX;
@@ -261,6 +263,7 @@
 
 
 <body onload="webGLStart();">
+
   <canvas id="wegl-canvas" style="border: none;" width="500" height="500" onmousedown="IfClick()"
     onmousemove="myFunction(event)" onmouseout="clearCoor()" onmouseup="IfNotClick()"
     onmousewheel="Roll(event)"></canvas>
@@ -269,6 +272,7 @@
   <label for="input_interactions_num"> interactions</label> <input type="text" id="input_interactions_num"
     onkeyup="update_interactions_num()"><br>
   <p id="demo"></p>
+
 </body>
 
 </html>

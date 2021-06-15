@@ -6,56 +6,6 @@
 
   <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
 
-  <script id="shader-fs" type="x-shader/x-fragment">
-    precision mediump float;
-
-    uniform float interaction_num;
-    uniform float Mx; 
-    uniform float My;
-    uniform float Roll;
-
-    void main(void)
-    {
-        vec2 An1, An;
-        float RCoef = abs(150.0 + Roll / 5.0);
-       
-        vec2 A0 = vec2((gl_FragCoord.x - Mx) / RCoef, (gl_FragCoord.y + My - 500.0) / RCoef);
-        
-        int n, a = int(interaction_num);
-
-        An = A0;
-        
-        for (int i = 0; i < 1048576; i++)
-        {
-        if (i > a)
-          break;
-
-        An1.x = An.x * An.x - An.y * An.y + A0.x;
-        An1.y = 2.0 * An.x * An.y + A0.y;
-        An = An1;
-        
-        if (An.x * An.x + An.y * An.y >  4.0)
-          n = i;
-        
-        }
-        gl_FragColor = vec4(float(n) / 2.0, float(n) / 3.0, float(n) / 8.0, 1.0);
-        
-    }
-
-</script>
-
-  <script id="shader-vs" type="x-shader/x-vertex">
-    attribute vec3 aVertexPosition;
-
-    uniform mat4 uMVMatrix;
-    uniform mat4 uPMatrix;
-
-    void main(void)
-    {
-        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    }
-</script>
-
   <script type="text/javascript">
     var gl;
     var interaction_num;
@@ -65,7 +15,6 @@
     var GlbMCoordYOld;
     var Mclick;
     var RollCoef = 0.0;
-
 
     function initGL(canvas) {
       try {
@@ -79,67 +28,69 @@
       }
     }
 
-    function getShader(gl, id) {
-      var shaderScript = document.getElementById(id);
-      if (!shaderScript) {
-        return null;
-      }
+    function getShader(Path) {
+      return new Promise((resolve, reject) => {
+        let shader;
 
-      var str = "";
-      var k = shaderScript.firstChild;
-      while (k) {
-        if (k.nodeType == 3) {
-          str += k.textContent;
-        }
-        k = k.nextSibling;
-      }
+        fetch(Path)
+          .then(response => { return response.text(); })
+          .then(text => {
+            if (Path.substr(2, 4) === 'frag')
+              shader = gl.createShader(gl.FRAGMENT_SHADER);
+            else if (Path.substr(2, 4) === 'vert')
+              shader = gl.createShader(gl.VERTEX_SHADER);
+            else
+              reject(shader);
 
-      var shader;
-      if (shaderScript.type == "x-shader/x-fragment") {
-        shader = gl.createShader(gl.FRAGMENT_SHADER);
-      } else if (shaderScript.type == "x-shader/x-vertex") {
-        shader = gl.createShader(gl.VERTEX_SHADER);
-      } else {
-        return null;
-      }
+            gl.shaderSource(shader, text);
+            gl.compileShader(shader);
 
-      gl.shaderSource(shader, str);
-      gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+              alert(gl.getShaderInfoLog(shader));
+              reject(shader);
+            }
 
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(shader));
-        return null;
-      }
-
-      return shader;
+            resolve(shader);
+          });
+      });
     }
 
     var shaderProgram;
 
-    function initShaders() {
-      var fragmentShader = getShader(gl, "shader-fs");
-      var vertexShader = getShader(gl, "shader-vs");
+    function initShaders(shName) {
+      return new Promise((resolve, reject) => {
+        let shader_prg;
+        let shaders = shName.map(path => getShader(path));
 
-      shaderProgram = gl.createProgram();
-      gl.attachShader(shaderProgram, vertexShader);
-      gl.attachShader(shaderProgram, fragmentShader);
-      gl.linkProgram(shaderProgram);
+        Promise.all(shaders)
+          .then(list => {
+            shader_prg = gl.createProgram();
 
-      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        alert("Could not initialise shaders");
-      }
+            for (let shader of list)
+              gl.attachShader(shader_prg, shader);
 
-      gl.useProgram(shaderProgram);
+            gl.linkProgram(shader_prg);
 
-      shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-      gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+            if (!gl.getProgramParameter(shader_prg, gl.LINK_STATUS)) {
+              alert("Could not initialise shaders");
+              reject(shader_prg);
+            }
 
-      shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-      shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-      shaderProgram.interactions_uniform = gl.getUniformLocation(shaderProgram, "interaction_num");
-      shaderProgram.Mx_uniform = gl.getUniformLocation(shaderProgram, "Mx");
-      shaderProgram.My_uniform = gl.getUniformLocation(shaderProgram, "My");
-      shaderProgram.Roll_uniform = gl.getUniformLocation(shaderProgram, "Roll")
+            gl.useProgram(shader_prg);
+
+            shader_prg.vertexPositionAttribute = gl.getAttribLocation(shader_prg, "aVertexPosition");
+            gl.enableVertexAttribArray(shader_prg.vertexPositionAttribute);
+
+            shader_prg.pMatrixUniform = gl.getUniformLocation(shader_prg, "uPMatrix");
+            shader_prg.mvMatrixUniform = gl.getUniformLocation(shader_prg, "uMVMatrix");
+            shader_prg.iterations_uniform = gl.getUniformLocation(shader_prg, "iterations");
+            shader_prg.mousecoordx_uniform = gl.getUniformLocation(shader_prg, "mouseCoordX");
+            shader_prg.mousecoordy_uniform = gl.getUniformLocation(shader_prg, "mouseCoordY");
+            shader_prg.mousewheel_uniform = gl.getUniformLocation(shader_prg, "mouseWheel");
+
+            resolve(shader_prg);
+          });
+      });
     }
 
 
@@ -208,14 +159,18 @@
 
       var canvas = document.getElementById("wegl-canvas");
       initGL(canvas);
-      initShaders();
-      initBuffers();
 
-      gl.clearColor(0.3, 0.5, 0.8, 1.0);
-      gl.enable(gl.DEPTH_TEST);
+      initShaders(['./vert.glsl', './frag.glsl'])
+        .then(shader_prg => {
+          shaderProgram = shader_prg;
+          initBuffers();
 
-      drawScene();
-      tick();
+          gl.clearColor(0.0, 0.0, 0.0, 1.0);
+          gl.enable(gl.DEPTH_TEST);
+
+          drawScene();
+          tick();
+        });
     }
 
     function update_interactions_num() {
@@ -277,8 +232,9 @@
   <br />
   <label for="input_interactions_num"> Iteracions</label> <input type="text" id="input_interactions_num"
     onkeyup="update_interactions_num()"><br>
-  <p id="demo"></p>
+  <p> </p>
   <button onclick="SetDefaultCam()">Set default camera</button>
+  <p id="demo"></p>
 </body>
 
 </html>

@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <link rel="stylesheet" href="CLNDRstyle.css">
+  <script>
+    function createCalendar(date) {
+
+      let d = new Date(date.getFullYear(), date.getMonth());
+      let end_data = d;
+      let pmt = d;
+      let table = '<table><tr><td id="prev" onclick="ClndrPrev();" colspan="2">пред. месяц</td>' + '<td colspan="3" id="month"></td>' +
+        '<td id="next" onclick="ClndrNext();" colspan="2">след. месяц</td></tr>' +
+        '<tr><td id="weekday">Пн</td><td id="weekday">Вт</td><td id="weekday">Ср</td><td id="weekday">Чт</td><td id="weekday">Пт</td><td id="Holi_weekday">Сб</td><td id="Holi_weekday">Вс</td ></tr><tr>';
+
+      // пробелы для первого ряда
+      // с понедельника до первого дня месяца
+      // * * * 1  2  3  4
+      for (let i = 0; i < getDay(d); i++) {
+        table += '<td id = "empty"></td>';
+      }
+
+      // <td> ячейки календаря с датами
+      while (d.getMonth() == date.getMonth()) {
+        if (d.getDate() == new Date().getDate() && d.getMonth() == new Date().getMonth() && d.getFullYear() == new Date().getFullYear())
+          table += '<td id = "today">' + d.getDate() + '</td>';
+        else
+          table += '<td id = "not_today">' + d.getDate() + '</td>';
+
+        if (getDay(d) % 7 == 6) { // вс, последний день - перевод строки
+          /*if (end_data.getDate(end_data.setDate(end_data.getDate() + 1)) == 1) {
+          }
+          else*/
+          table += '</tr><tr>';
+        }
+
+        d.setDate(d.getDate() + 1);
+        end_data = d;
+      }
+
+      // добить таблицу пустыми ячейками, если нужно
+      // 29 30 31 * * * *
+      if (getDay(d) != 0) {
+        for (let i = getDay(d); i < 7; i++) {
+          table += '<td id = "empty"></td>';
+        }
+      }
+
+      // закрыть таблицу
+      //table += '</tr></table>';
+      document.getElementById("calendar").innerHTML = table;
+      document.getElementById("month").innerHTML = date.toLocaleString('default', { month: 'long' }) +
+        ',&nbsp' + date.getFullYear();
+
+    }
+
+    function getDay(date) { // получить номер дня недели, от 0 (пн) до 6 (вс)
+      let day = date.getDay();
+      if (day == 0) day = 7; // сделать воскресенье (0) последним днем
+      return day - 1;
+    }
+
+    function InitCalendar() {
+      current_date = new Date();
+      createCalendar(current_date);
+    }
+    function ClndrPrev() {
+      current_date = new Date(current_date.getFullYear(), current_date.getMonth() - 1)
+      createCalendar(current_date);
+    }
+    function ClndrNext() {
+      current_date = new Date(current_date.getFullYear(), current_date.getMonth() + 1)
+      createCalendar(current_date);
+    }
+  </script>
+
+</head>
+
+<body onload="InitCalendar()">
+  <div id="calendar"></div>
+  <label>Год:</label> <input type="text" id="input_year" onkeyup="update_year()"><br>
+  <div class="dropdown">
+    <button onclick="myFunction()" class="dropbtn">Месяц</button>
+    <div id="myDropdown" class="dropdown-content">
+      <a href="#jan">Январь</a>
+      <a href="#feb">Февраль</a>
+      <a href="#mar">Март</a>
+      <a href="#apr">Апрель</a>
+      <a href="#may">Май</a>
+      <a href="#jun">Июнь</a>
+      <a href="#jul">Июль</a>
+      <a href="#aug">Август</a>
+      <a href="#sep">Сентябрь</a>
+      <a href="#oct">Октябрь</a>
+      <a href="#nov">Ноябрь</a>
+      <a href="#dec">Декабрь</a>
+    </div>
+  </div>
+
+  <script>
+    /* When the user clicks on the button, 
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+      document.getElementById("myDropdown").classList.toggle("show");
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function (event) {
+      if (!event.target.matches('.dropbtn')) {
+
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+          }
+        }
+      }
+    }
+  </script>
+
+
+
+</body>
+
+</html>

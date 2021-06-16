@@ -1,0 +1,25 @@
+      let table = '<table><tr><td id="prev" onclick="ClndrPrev();" colspan="2"></td>' + '<td colspan="3" id="month"></td>' +
+        '<td id="next" onclick="ClndrNext();" colspan="2"></td></tr>' +
+        '<tr><td id="weekday">Ïí</td><td id="weekday">Âò</td><td id="weekday">Ñð</td><td id="weekday">×ò</td><td id="weekday">Ïò</td><td id="Holi_weekday">Ñá</td><td id="Holi_weekday">Âñ</td ></tr><tr>';
+
+
+
+table += '</tr></table>';
+      document.getElementById("calendar").innerHTML = table;
+      document.getElementById("month").innerHTML = d.toLocaleString('default', { month: 'long' }) +
+        ',&nbsp' + d.getFullYear();
+
+
+    function InitCalendar() {
+      current_date = new Date();
+      createCalendar(current_date.getFullYear(), current_date.getMonth());
+    }
+    function ClndrPrev() {
+      current_date = new Date(current_date.getFullYear(), current_date.getMonth() - 1)
+      createCalendar(current_date.getFullYear(), current_date.getMonth());
+    }
+    function ClndrNext() {
+      current_date = new Date(current_date.getFullYear(), current_date.getMonth() + 1)
+      createCalendar(current_date.getFullYear(), current_date.getMonth());
+    }
+

@@ -1,0 +1,133 @@
+td,
+tr {
+  border: 1px solid black;
+  padding: 3px;
+  text-align: center;
+  width: 80px;
+  height: 40px;
+}
+
+th {
+  font-weight: bold;
+}
+
+#not_today{
+background-color:teal;
+}
+
+#weekday{
+font-family: 'Times New Roman', Times, serif;
+background-color: thistle;
+background-color:rgb(63, 98, 119);
+}
+
+#Holi_weekday {
+  font-family: 'Times New Roman', Times, serif;
+  color:darkred;
+  background-color: lightcoral;
+}
+
+
+#today {
+  background-color:turquoise;
+}
+
+#empty {
+  background-color:darkolivegreen
+}
+
+#prev, #next{
+  background-color:rgba(15, 72, 105, 1);
+  color: rgba(15, 72, 105, 0.932);
+}
+
+#month{
+  background-color:rgba(15, 72, 105, 0.932);
+  color:lightseagreen;
+  font-size: large;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+@keyframes example {
+  from {background-color: rgba(15, 72, 105, 1);}
+  to {background-color: rgb(55, 190, 214);}
+}
+@keyframes examplefday {
+  to {background-color: rgb(55, 190, 214);}
+}
+@keyframes tableAnim {
+from {background-color: 0;}
+  to {background-color: 1;}
+}
+
+
+#today:hover, #not_today:hover, #empty:hover{
+  animation-name: examplefday;
+  animation-duration: 0.3s;
+  background-color: rgb(55, 190, 214);
+}
+
+#prev:hover, #next:hover {
+  background-color: rgb(55, 190, 214);
+  border-style: solid;
+  border: 0px;
+  border-radius: 0px;
+  animation-name: example;
+  animation-duration: 0.5s;
+}
+table {
+  border: 0px solid;
+  background-color: rgb(5,19,54);
+  border-collapse: separate;
+  border-style: solid;
+  border-radius: 5px;
+  margin: 0%;
+  animation: tableAnim;
+  animation-duration: 2s;
+}
+html{
+  background-image: url(https://i.giphy.com/media/b08ArVM6rvmpy/giphy.webp);
+}
+
+.dropbtn {
+  background-color: #3498DB;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+
+}
+
+.dropdown-content {
+  display: none;
+  position:relative;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+body{
+  margin-left: auto;
+}
+.dropdown a:hover {background-color: #ddd;}
+
+.show {display: block;}

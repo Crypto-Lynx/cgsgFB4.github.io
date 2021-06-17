@@ -131,3 +131,9 @@ body{
 .dropdown a:hover {background-color: #ddd;}
 
 .show {display: block;}
+
+#input_year_font {
+  color:peachpuff;
+  font-size: large;
+  font-family: 'Times New Roman', Times, serif;
+}

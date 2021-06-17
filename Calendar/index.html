@@ -47,7 +47,7 @@
       }
 
       // закрыть таблицу
-      //table += '</tr></table>';
+      table += '</tr></table>';
       document.getElementById("calendar").innerHTML = table;
       document.getElementById("month").innerHTML = date.toLocaleString('default', { month: 'long' }) +
         ',&nbsp' + date.getFullYear();
@@ -74,33 +74,60 @@
     }
   </script>
 
+  <script>
+    var yearinp = new Date().getFullYear();
+    var monthinp = new Date().getMonth();
+    function update_year() {
+      let data = document.getElementById('input_year').value;
+      yearinp = parseInt(data);
+      var isnum = /^\d*$/.test(data);
+      if (!isnum)
+        document.getElementById('input_year').style.backgroundColor = "red";
+      else
+        document.getElementById('input_year').style.backgroundColor = "white";
+      if (isNaN(yearinp))
+        year = new Date().getFullYear();
+    }
+
+
+    function update_month(month) {
+      monthinp = month;
+    }
+
+    function updateCalendar() {
+      let dateinp = new Date(yearinp, monthinp);
+      createCalendar(dateinp);
+    }
+  </script>
+
 </head>
 
 <body onload="InitCalendar()">
   <div id="calendar"></div>
-  <label>Год:</label> <input type="text" id="input_year" onkeyup="update_year()"><br>
+  <button onclick="updateCalendar()">Применить</button>
+  <label id="input_year_font">Год:</label> <input type="text" id="input_year" onkeyup="update_year()"><br>
   <div class="dropdown">
-    <button onclick="myFunction()" class="dropbtn">Месяц</button>
+    <button onclick="btnFunction()" class="dropbtn">Месяц</button>
     <div id="myDropdown" class="dropdown-content">
-      <a href="#jan">Январь</a>
-      <a href="#feb">Февраль</a>
-      <a href="#mar">Март</a>
-      <a href="#apr">Апрель</a>
-      <a href="#may">Май</a>
-      <a href="#jun">Июнь</a>
-      <a href="#jul">Июль</a>
-      <a href="#aug">Август</a>
-      <a href="#sep">Сентябрь</a>
-      <a href="#oct">Октябрь</a>
-      <a href="#nov">Ноябрь</a>
-      <a href="#dec">Декабрь</a>
+      <a onclick="update_month(0)">Январь</a>
+      <a onclick="update_month(1)">Февраль</a>
+      <a onclick="update_month(2)">Март</a>
+      <a onclick="update_month(3)">Апрель</a>
+      <a onclick="update_month(4)">Май</a>
+      <a onclick="update_month(5)">Июнь</a>
+      <a onclick="update_month(6)">Июль</a>
+      <a onclick="update_month(7)">Август</a>
+      <a onclick="update_month(8)">Сентябрь</a>
+      <a onclick="update_month(9)">Октябрь</a>
+      <a onclick="update_month(10)">Ноябрь</a>
+      <a onclick="update_month(11)">Декабрь</a>
     </div>
   </div>
 
   <script>
     /* When the user clicks on the button, 
     toggle between hiding and showing the dropdown content */
-    function myFunction() {
+    function btnFunction() {
       document.getElementById("myDropdown").classList.toggle("show");
     }
 

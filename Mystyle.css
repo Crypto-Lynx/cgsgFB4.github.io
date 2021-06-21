@@ -1,15 +1,19 @@
 html{
-    background: url(ws_Halo_cut.jpg) no-repeat;
-    -moz-background-size: 100%; /* Firefox 3.6+ */
-    -webkit-background-size: 100%; /* Safari 3.1+ и Chrome 4.0+ */
-    -o-background-size: 100%; /* Opera 9.6+ */
-    height: 100%;
-    object-fit: cover; 
+    background: url(ws_Halo_cut.jpg)  no-repeat center center fixed; 
+   
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 #entry {
-size: 50%;
+font-size: x-large;
+font-family: 'Times New Roman', Times, serif;
+color:orangered;
+
 }
 
-
-  
+img {
+border: 5px solid green;
+}

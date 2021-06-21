@@ -7,7 +7,7 @@
 
     <script type="text/javascript">
         function SendMessage() {
-            if (document.getElementById("user_name") != "" && document.getElementById("user_message") != "") {
+            if (document.getElementById("user_name").value != "" && document.getElementById("user_message").value != "") {
                 fetch("/msg", {
 
                     method: "POST",

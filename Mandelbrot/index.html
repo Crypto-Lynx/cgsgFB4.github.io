@@ -83,10 +83,10 @@
 
             shader_prg.pMatrixUniform = gl.getUniformLocation(shader_prg, "uPMatrix");
             shader_prg.mvMatrixUniform = gl.getUniformLocation(shader_prg, "uMVMatrix");
-            shader_prg.iterations_uniform = gl.getUniformLocation(shader_prg, "iterations");
-            shader_prg.mousecoordx_uniform = gl.getUniformLocation(shader_prg, "mouseCoordX");
-            shader_prg.mousecoordy_uniform = gl.getUniformLocation(shader_prg, "mouseCoordY");
-            shader_prg.mousewheel_uniform = gl.getUniformLocation(shader_prg, "mouseWheel");
+            shader_prg.interactions_uniform = gl.getUniformLocation(shader_prg, "iterations");
+            shader_prg.Mx_uniform = gl.getUniformLocation(shader_prg, "Mx");
+            shader_prg.My_uniform = gl.getUniformLocation(shader_prg, "My");
+            shader_prg.Roll_uniform = gl.getUniformLocation(shader_prg, "Roll");
 
             resolve(shader_prg);
           });
@@ -94,12 +94,12 @@
     }
 
 
-    var mvMatrix = mat4.create();
-    var pMatrix = mat4.create();
+    var uMVMatrix = mat4.create();
+    var uPMatrix = mat4.create();
 
     function setMatrixUniforms() {
-      gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-      gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+      gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, uPMatrix);
+      gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, uMVMatrix);
       gl.uniform1f(shaderProgram.interactions_uniform, interaction_num);
       gl.uniform1f(shaderProgram.Mx_uniform, GlbMCoordX);
       gl.uniform1f(shaderProgram.My_uniform, GlbMCoordY);
@@ -127,12 +127,12 @@
       gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-      mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+      mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, uPMatrix);
 
-      mat4.identity(mvMatrix);
+      mat4.identity(uMVMatrix);
 
 
-      mat4.translate(mvMatrix, [0.0, 0.0, -1.0]);
+      mat4.translate(uMVMatrix, [0.0, 0.0, -1.0]);
       gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
       gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
       setMatrixUniforms();
@@ -149,7 +149,7 @@
       // default interection num
       interaction_num = 32.0;
       document.getElementById('input_interactions_num').value = interaction_num;
-
+      SetDefaultCam();
       var xmlhttp = new XMLHttpRequest();
       xmlhttp.open('GET', '/0/data.txt', false);
       xmlhttp.send(null);
@@ -211,12 +211,15 @@
     }
     function Roll(e) {
       RollCoef -= e.deltaY;
+
+      if (RollCoef < 100.0)
+        RollCoef = 100.0;
     }
 
     function SetDefaultCam() {
       GlbMCoordX = 250.0;
       GlbMCoordY = 250.0;
-      RollCoef = 0.0;
+      RollCoef = 100.0;
     }
   </script>
 

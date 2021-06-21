@@ -1,6 +1,6 @@
 precision mediump float;
 
-uniform float interaction_num;
+uniform float iterations;
 uniform float Mx; 
 uniform float My;
 uniform float Roll;
@@ -9,10 +9,10 @@ void main(void)
 {
   vec2 An1, An;
   float RCoef = abs(150.0 + Roll / 5.0);
- 
+  
   vec2 A0 = vec2((gl_FragCoord.x - Mx) / RCoef, (gl_FragCoord.y + My - 500.0) / RCoef);
   
-  int n, a = int(interaction_num);
+  int n, a = int(iterations);
 
   An = A0;
   

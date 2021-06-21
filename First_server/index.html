@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF_8" />
+    <title>Simple chat</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <script type="text/javascript">
+        function SendMessage() {
+            if (document.getElementById("user_name") != "" && document.getElementById("user_message") != "") {
+                fetch("/msg", {
+
+                    method: "POST",
+                    headers: { "Content-Type": "application/json;charset=utf-8" },
+                    body: JSON.stringify({
+                        username: document.getElementById("user_name").value,
+                        message: document.getElementById("user_message").value
+                    })
+                });
+                document.getElementById("user_message").value = "";
+            }
+        }
+
+        function getMessage() {
+            let old_str = "";
+            fetch("/msg", { method: "GET" })
+                .then(response => { return response.text(); })
+                .then(text => {
+                    let messages = JSON.parse(text);
+                    let str = "";
+                    for (el of messages)
+                        str += `<div class="message"><a class="el_username">${el.username}</a> ${el.message}</div><br>`
+
+                    if (str != old_str)
+                        document.getElementById("text_box").innerHTML = old_str = str;
+                    reloadData();
+                });
+        }
+
+        function reloadData() {
+            setTimeout(getMessage(), 1500);
+        }
+
+        function PressEnter(e) {
+            if (e.keyCode == 13)
+                SendMessage();
+        }
+    </script>
+</head>
+
+<body onload="reloadData()">
+    <div class="all">
+        <p id="header">Uhm-uhm \ Kcha-Kcha</p>
+
+        <div>
+            <p id="text_box"></p>
+        </div>
+
+        <div id="input">
+            <input id="user_name" placeholder="nickname">
+            <input id="user_message" onkeypress="PressEnter(event);" placeholder="message">
+            <input id="send_msg_bttn" type="button" onclick="SendMessage();" value="Send">
+        </div>
+    </div>
+
+</body>
+
+</html>
